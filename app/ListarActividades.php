@@ -11,6 +11,9 @@ $_SESSION['last_page'] = 'ListarActividades.php'; // Guardamos la última págin
 // Incluimos el DAO
 require_once $dir . '/../persistence/DAO/ActividadesDAO.php';
 
+// Incluimos el validador
+require_once $dir . '/../utils/Validador.php';
+
 // Creamos la instancia del DAO
 $actividadDAO = new ActividadesDAO();
 
@@ -37,10 +40,17 @@ if (isset($_GET['delete_id'])) {
 $fecha_filtro = null;
 // Validamos que la fecha esté presente y no esté vacía
 if (isset($_GET['activityDate']) && !empty($_GET['activityDate'])) {
-    // (Idealmente se validaría el formato YYYY-MM-DD)
     $fecha_filtro = $_GET['activityDate'];
-    // Buscamos en el servidor las actividades de esa fecha
-    $actividades = $actividadDAO->selectByDate($fecha_filtro);
+
+    // Validamos el formato YYYY-MM-DD
+    if (Validador::validarFormatoFecha($fecha_filtro)) {
+        // Buscamos en el servidor las actividades de esa fecha
+        $actividades = $actividadDAO->selectByDate($fecha_filtro);
+    } else {
+        // Si la fecha no es válida, mostramos todas las actividades
+        $actividades = $actividadDAO->selectAll();
+        $fecha_filtro = null; // Limpiamos la fecha inválida
+    }
 } else {
     // --- MOSTRAR TODO ---
     $actividades = $actividadDAO->selectAll();
@@ -67,7 +77,7 @@ require_once $dir . '/../templates/header.php';
                     <input name="activityDate" id="activityDate" class="form-control" type="date" value="<?php echo htmlspecialchars($fecha_filtro ?? ''); ?>" />
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filtrar</button>
                 </div>
             </form>
         </div>
@@ -109,7 +119,7 @@ require_once $dir . '/../templates/header.php';
                     </div>
                     <div class="card-footer d-flex justify-content-center">
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success" href="<?php echo $dirHref . '/app/EditarActividades.php?edit_id=' . $actividad['id']; ?>">Modificar</a>
+                            <a type="button" class="btn btn-success" href="<?php echo $dirHref . '/app/EditarActividades.php?edit_id=' . $actividad['id']; ?>">Editar</a>
 
                             <a type="button" class="btn btn-danger" href="<?php echo $dirHref . '/app/ListarActividades.php?delete_id=' . $actividad['id']; ?>">Borrar</a>
                         </div>

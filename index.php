@@ -19,5 +19,3 @@ if (isset($_SESSION['last_page'])) {
     header('Location: ' . $dirHref . '/app/ListarActividades.php');
     exit; // Aseguramos que el script termina tras la redirección
 }
-
-?>

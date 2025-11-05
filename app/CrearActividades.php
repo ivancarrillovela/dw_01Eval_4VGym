@@ -83,7 +83,7 @@ if (!empty($errores)) {
 <?php
 // Variables para el formulario reutilizable
 $form_action = $dirHref . '/app/CrearActividades.php';
-$button_text = 'Insert';
+$button_text = 'Insertar';
 $id_actividad = null; // No hay ID en la creación
 
 // Incluimos el formulario reutilizable

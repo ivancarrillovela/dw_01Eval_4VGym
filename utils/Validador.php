@@ -49,4 +49,36 @@ class Validador
 
         return $errores;
     }
+
+    /**
+     * Valida una fecha en formato YYYY-MM-DD
+     * 
+     * @param string $fecha Fecha a validar en formato YYYY-MM-DD
+     * @return bool True si la fecha es válida, false en caso contrario
+     */
+    public static function validarFormatoFecha($fecha)
+    {
+        // Validar que no esté vacía
+        if (empty($fecha)) {
+            return false;
+        }
+
+        // Validar formato YYYY-MM-DD usando expresión regular
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+            return false;
+        }
+
+        // Separar la fecha en componentes
+        $partes = explode('-', $fecha);
+        if (count($partes) !== 3) {
+            return false;
+        }
+
+        $anio = (int)$partes[0];
+        $mes = (int)$partes[1];
+        $dia = (int)$partes[2];
+
+        // Validar que sea una fecha real del calendario (por ejemplo no permite 2024-13-45)
+        return checkdate($mes, $dia, $anio);
+    }
 }

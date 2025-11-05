@@ -1,5 +1,5 @@
 <form class="form-horizontal" method="POST" action="<?php echo $form_action; ?>">
-    
+
     <?php if ($id_actividad !== null) : ?>
         <input type="hidden" name="id" value="<?php echo $id_actividad; ?>">
     <?php endif; ?>

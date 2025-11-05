@@ -6,7 +6,6 @@ $dirHref = '/EjerciciosDWEB/dw_01Eval_4VGym';
 // Gestión de sesión
 require_once $dir . '/../utils/GestorSesion.php';
 GestorSesion::iniciarSesionSiNoEstaIniciada();
-$_SESSION['last_page'] = 'EditarActividades.php'; // Guardamos la URL completa
 
 // Incluimos el DAO
 require_once $dir . '/../persistence/DAO/ActividadesDAO.php';
@@ -68,6 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 else if (isset($_GET['edit_id'])) {
     $id_actividad = $_GET['edit_id'];
 
+    // Guardamos la URL completa con el ID en la sesión
+    $_SESSION['last_page'] = 'EditarActividades.php?edit_id=' . $id_actividad;
+
     // Asegurarnos de que el ID existe
     $actividad = $actividadDAO->selectById($id_actividad);
 
@@ -95,7 +97,7 @@ else {
 require_once $dir . '/../templates/header.php';
 ?>
 
-<h2>Editar Actividad (ID: <?php echo $id_actividad; ?>)</h2>
+<h2>Editar Actividad</h2>
 <hr>
 
 <?php
@@ -112,7 +114,7 @@ if (!empty($errores)) {
 <?php
 // Variables para el formulario reutilizable
 $form_action = $dirHref . '/app/EditarActividades.php';
-$button_text = 'Edit';
+$button_text = 'Editar';
 // $id_actividad, $valor_tipo, etc., ya están definidas arriba
 
 // Incluimos el formulario reutilizable

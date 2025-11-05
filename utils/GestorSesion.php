@@ -1,13 +1,14 @@
 <?php
-class GestorSesion {
+class GestorSesion
+{
 
   /**
    * Comprueba si la sesión no está iniciada. En ese caso la inicia.
    */
-  static function iniciarSesionSiNoEstaIniciada() {
+  static function iniciarSesionSiNoEstaIniciada()
+  {
     if (session_status() == PHP_SESSION_NONE) {
-        session_start();
+      session_start();
     }
   }
 }
-?>
