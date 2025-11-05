@@ -3,10 +3,10 @@
 $dir = __DIR__;
 $dirHref = '/EjerciciosDWEB/dw_01Eval_4VGym';
 
-// (Paso 2) Gestión de sesión
+// Gestión de sesión
 require_once $dir . '/../utils/GestorSesion.php';
 GestorSesion::iniciarSesionSiNoEstaIniciada();
-$_SESSION['last_page'] = 'listado.php'; // Guardamos la última página visitada [cite: 82]
+$_SESSION['last_page'] = 'ListarActividades.php'; // Guardamos la última página visitada [cite: 82]
 
 // Incluimos el DAO
 require_once $dir . '/../persistence/DAO/ActividadesDAO.php';
@@ -28,8 +28,8 @@ if (isset($_GET['delete_id'])) {
     }
     // Si no existe, no hacemos nada
 
-    // Redirigimos a listado.php para limpiar la URL y así refrescar el listado
-    header("Location: " . $dirHref . "/app/listado.php");
+    // Redirigimos a ListarActividades.php para limpiar la URL y así refrescar el listado
+    header("Location: " . $dirHref . "/app/ListarActividades.php");
     exit;
 }
 
@@ -52,6 +52,7 @@ if (isset($_GET['activityDate']) && !empty($_GET['activityDate'])) {
 require_once $dir . '/../templates/header.php';
 ?>
 
+<!-- Vista del listado de actividades -->
 <div class="alert alert-warning">
     <div class="row">
         <div class="col-md-5">
@@ -61,7 +62,7 @@ require_once $dir . '/../templates/header.php';
             <h1>4VGym, GYM de 4V</h1>
             <p>Ponte en forma y ganaras vida</p>
             <hr />
-            <form action="<?php echo $dirHref . '/app/listado.php'; ?>" method="get" class="row g-2 align-items-center">
+            <form action="<?php echo $dirHref . '/app/ListarActividades.php'; ?>" method="get" class="row g-2 align-items-center">
                 <div class="col-auto">
                     <input name="activityDate" id="activityDate" class="form-control" type="date" value="<?php echo htmlspecialchars($fecha_filtro ?? ''); ?>" />
                 </div>
@@ -108,9 +109,9 @@ require_once $dir . '/../templates/header.php';
                     </div>
                     <div class="card-footer d-flex justify-content-center">
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success" href="<?php echo $dirHref . '/app/editarActividad.php?edit_id=' . $actividad['id']; ?>">Modificar</a>
+                            <a type="button" class="btn btn-success" href="<?php echo $dirHref . '/app/EditarActividades.php?edit_id=' . $actividad['id']; ?>">Modificar</a>
 
-                            <a type="button" class="btn btn-danger" href="<?php echo $dirHref . '/app/listado.php?delete_id=' . $actividad['id']; ?>" onclick="return confirm('¿Estás seguro de que quieres borrar esta actividad?');">Borrar</a>
+                            <a type="button" class="btn btn-danger" href="<?php echo $dirHref . '/app/ListarActividades.php?delete_id=' . $actividad['id']; ?>">Borrar</a>
                         </div>
                     </div>
                 </div>

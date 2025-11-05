@@ -6,7 +6,7 @@ $dirHref = '/EjerciciosDWEB/dw_01Eval_4VGym';
 // Gestión de sesión
 require_once $dir . '/../utils/GestorSesion.php';
 GestorSesion::iniciarSesionSiNoEstaIniciada();
-$_SESSION['last_page'] = basename($_SERVER['REQUEST_URI']); // Guardamos la URL completa (incl. ?edit_id=)
+$_SESSION['last_page'] = 'EditarActividades.php'; // Guardamos la URL completa
 
 // Incluimos el DAO
 require_once $dir . '/../persistence/DAO/ActividadesDAO.php';
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $actividadDAO->update($actividadDTO);
 
         // Redirigimos al listado
-        header("Location: " . $dirHref . "/app/listado.php");
+        header("Location: " . $dirHref . "/app/ListarActividades.php");
         exit;
     }
     // Si hay errores, se mostrarán en la vista
@@ -79,7 +79,7 @@ else if (isset($_GET['edit_id'])) {
         $valor_fecha = $actividad['date'];
     } else {
         // Si no existe, redirigimos al listado
-        header("Location: " . $dirHref . "/app/listado.php");
+        header("Location: " . $dirHref . "/app/ListarActividades.php");
         exit;
     }
 }
@@ -87,7 +87,7 @@ else if (isset($_GET['edit_id'])) {
 // --- LÓGICA ACCESO INVÁLIDO ---
 // Si no es POST ni GET con edit_id es incorrecto
 else {
-    header("Location: " . $dirHref . "/app/listado.php");
+    header("Location: " . $dirHref . "/app/ListarActividades.php");
     exit;
 }
 
@@ -111,7 +111,7 @@ if (!empty($errores)) {
 
 <?php
 // Variables para el formulario reutilizable
-$form_action = $dirHref . '/app/editarActividad.php';
+$form_action = $dirHref . '/app/EditarActividades.php';
 $button_text = 'Edit';
 // $id_actividad, $valor_tipo, etc., ya están definidas arriba
 
