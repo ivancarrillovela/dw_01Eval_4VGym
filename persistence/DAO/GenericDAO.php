@@ -16,7 +16,7 @@ abstract class GenericDAO {
   abstract protected function selectAll();
   abstract protected function selectById($id);
   abstract protected function insert($dto); // DTO (Data Transfer Object) será un array
-  abstract protected function update($dto); // DTO será un array
+  abstract protected function update($dto); // DTO (Data Transfer Object) será un array
   abstract protected function delete($id);
 
 }

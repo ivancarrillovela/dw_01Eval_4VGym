@@ -1,107 +1,108 @@
 <?php
-// (Paso 2) Gestión de sesión
-require_once __DIR__ . '/../utils/SessionHelper.php';
-SessionHelper::startSessionIfNotStarted();
+// Configuración de rutas
+$dir = __DIR__;
+$dirHref = '/EjerciciosDWEB/dw_01Eval_4VGym';
+
+// Gestión de sesión
+require_once $dir . '/../utils/GestorSesion.php';
+GestorSesion::iniciarSesionSiNoEstaIniciada();
 $_SESSION['last_page'] = basename($_SERVER['REQUEST_URI']); // Guardamos la URL completa (incl. ?edit_id=)
 
 // Incluimos el DAO
-require_once __DIR__ . '/../persistence/DAO/ActivityDAO.php';
+require_once $dir . '/../persistence/DAO/ActividadesDAO.php';
 
-$errors = [];
-$activityDAO = new ActivityDAO();
+// Incluimos el validador
+require_once $dir . '/../utils/Validador.php';
 
-// Constantes para validación [cite: 126]
-define("VALID_TYPES", ['spinning', 'bodypump', 'pilates']);
+// Definimos las variables para la lógica de la vista
+$errores = []; // Array para almacenar errores de validación
+$actividadDAO = new ActividadesDAO();
 
 // Variables para el formulario (se rellenarán con GET o POST)
-$activity_id = null;
-$type_value = '';
-$monitor_value = '';
-$place_value = '';
-$date_value = '';
+$id_actividad = null;
+$valor_tipo = '';
+$valor_monitor = '';
+$valor_lugar = '';
+$valor_fecha = '';
 
 
-// --- LÓGICA PASO 6: ACTUALIZAR (POST) --- 
+// --- ACTUALIZAR (POST) --- 
+// Comprobamos si la petición es POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Recuperamos los datos del POST
-    $activity_id = $_POST['id'] ?? null;
-    $type_value = $_POST['type'] ?? '';
-    $monitor_value = $_POST['monitor'] ?? '';
-    $place_value = $_POST['place'] ?? '';
-    $date_value = $_POST['date'] ?? '';
+    $id_actividad = $_POST['id'] ?? null;
+    $valor_tipo = $_POST['type'] ?? '';
+    $valor_monitor = $_POST['monitor'] ?? '';
+    $valor_lugar = $_POST['place'] ?? '';
+    $valor_fecha = $_POST['date'] ?? '';
 
-    // --- Validaciones (IDÉNTICAS a crear) [cite: 168] ---
-    if (empty($activity_id) || empty($type_value) || empty($monitor_value) || empty($place_value) || empty($date_value)) {
-        $errors[] = "Todos los campos son obligatorios.";
-    }
-    if (!in_array($type_value, VALID_TYPES)) {
-        $errors[] = "El tipo de actividad no es válido.";
-    }
-    $date_timestamp = strtotime($date_value);
-    $now_timestamp = time();
-    if ($date_timestamp === false || $date_timestamp < $now_timestamp) {
-        $errors[] = "La fecha y hora deben ser posteriores a la actual.";
-    }
-    // --- Fin Validaciones ---
+    // Validamos usando el validador
+    $errores = Validador::validarForm([
+        'id' => $id_actividad,
+        'type' => $valor_tipo,
+        'monitor' => $valor_monitor,
+        'place' => $valor_lugar,
+        'date' => $valor_fecha
+    ], true); // true porque requiere ID al editar
 
-    // Si no hay errores, actualizamos
-    if (empty($errors)) {
-        $activityDTO = [
-            'id' => $activity_id,
-            'type' => $type_value,
-            'monitor' => $monitor_value,
-            'place' => $place_value,
-            'date' => $date_value
+    // Si no hay errores actualizamos
+    if (empty($errores)) {
+        $actividadDTO = [
+            'id' => $id_actividad,
+            'type' => $valor_tipo,
+            'monitor' => $valor_monitor,
+            'place' => $valor_lugar,
+            'date' => $valor_fecha
         ];
-        
-        $activityDAO->update($activityDTO);
-        
+
+        $actividadDAO->update($actividadDTO);
+
         // Redirigimos al listado
-        header("Location: listado.php");
+        header("Location: " . $dirHref . "/app/listado.php");
         exit;
     }
     // Si hay errores, se mostrarán en la vista
 }
 
-// --- LÓGICA PASO 6: OBTENER (GET) --- 
+// --- OBTENER (GET) --- 
 else if (isset($_GET['edit_id'])) {
-    $activity_id = $_GET['edit_id'];
-    
-    // (Paso 6.1) Asegurarnos de que el ID existe [cite: 166]
-    $activity = $activityDAO->selectById($activity_id);
-    
-    if ($activity) {
+    $id_actividad = $_GET['edit_id'];
+
+    // Asegurarnos de que el ID existe
+    $actividad = $actividadDAO->selectById($id_actividad);
+
+    if ($actividad) {
         // Si existe, rellenamos las variables para el formulario
-        $type_value = $activity['type'];
-        $monitor_value = $activity['monitor'];
-        $place_value = $activity['place'];
-        $date_value = $activity['date'];
+        $valor_tipo = $actividad['type'];
+        $valor_monitor = $actividad['monitor'];
+        $valor_lugar = $actividad['place'];
+        $valor_fecha = $actividad['date'];
     } else {
-        // (Paso 6.2) Si no existe, redirigimos al listado [cite: 167]
-        header("Location: listado.php");
+        // Si no existe, redirigimos al listado
+        header("Location: " . $dirHref . "/app/listado.php");
         exit;
     }
 }
 
 // --- LÓGICA ACCESO INVÁLIDO ---
-// Si no es POST ni GET con 'edit_id', es un acceso incorrecto
+// Si no es POST ni GET con edit_id es incorrecto
 else {
-    header("Location: listado.php");
+    header("Location: " . $dirHref . "/app/listado.php");
     exit;
 }
 
 // --- VISTA ---
-require_once __DIR__ . '/../templates/header.php';
+require_once $dir . '/../templates/header.php';
 ?>
 
-<h2>Editar Actividad (ID: <?php echo $activity_id; ?>)</h2>
+<h2>Editar Actividad (ID: <?php echo $id_actividad; ?>)</h2>
 <hr>
 
 <?php
-// (Paso 4.4) Si hay errores (del POST), los mostramos [cite: 130]
-if (!empty($errors)) {
+// Si hay errores (del POST), los mostramos
+if (!empty($errores)) {
     echo '<div class="alert alert-danger" role="alert">';
-    foreach ($errors as $error) {
+    foreach ($errores as $error) {
         echo "<p class='mb-0'>$error</p>";
     }
     echo '</div>';
@@ -110,14 +111,14 @@ if (!empty($errors)) {
 
 <?php
 // Variables para el formulario reutilizable
-$form_action = 'editarActividad.php';
+$form_action = $dirHref . '/app/editarActividad.php';
 $button_text = 'Edit';
-// $activity_id, $type_value, etc., ya están definidas arriba
+// $id_actividad, $valor_tipo, etc., ya están definidas arriba
 
-// Incluimos el formulario reutilizable [cite: 165]
-require __DIR__ . '/../templates/formActividad.php';
+// Incluimos el formulario reutilizable
+require $dir . '/../templates/formulario.php';
 ?>
 
 <?php
-require_once __DIR__ . '/../templates/footer.php';
+require_once $dir . '/../templates/footer.php';
 ?>

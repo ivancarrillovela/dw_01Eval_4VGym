@@ -1,92 +1,79 @@
 <?php
-// (Paso 2) Gestión de sesión
-require_once __DIR__ . '/../utils/SessionHelper.php';
-SessionHelper::startSessionIfNotStarted();
-$_SESSION['last_page'] = 'crearActividad.php'; // [cite: 82]
+// Configuración de rutas
+$dir = __DIR__;
+$dirHref = '/EjerciciosDWEB/dw_01Eval_4VGym';
+
+// Gestión de sesión
+require_once $dir . '/../utils/GestorSesion.php';
+GestorSesion::iniciarSesionSiNoEstaIniciada();
+$_SESSION['last_page'] = 'crearActividad.php';
 
 // Incluimos el DAO
-require_once __DIR__ . '/../persistence/DAO/ActivityDAO.php';
+require_once $dir . '/../persistence/DAO/ActividadesDAO.php';
+
+// Incluimos el validador
+require_once $dir . '/../utils/Validador.php';
 
 // Definimos las variables para la lógica de la vista
-$errors = []; // Array para almacenar errores de validación
-$activityDAO = null;
+$errores = []; // Array para almacenar errores de validación
+$actividadDAO = null;
 
-// Valores por defecto para el formulario (vacíos)
-$type_value = '';
-$monitor_value = '';
-$place_value = '';
-$date_value = '';
+// Valores por defecto para el formulario
+$valor_tipo = '';
+$valor_monitor = '';
+$valor_lugar = '';
+$valor_fecha = '';
 
-// Constantes para validación [cite: 126]
-define("VALID_TYPES", ['spinning', 'bodypump', 'pilates']);
-
-// --- LÓGICA PASO 4: CREAR (POST) ---
-// Comprobamos si la petición es POST [cite: 129]
+// --- CREAR (POST) ---
+// Comprobamos si la petición es POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
     // Recuperamos los datos del formulario
-    $type_value = $_POST['type'] ?? '';
-    $monitor_value = $_POST['monitor'] ?? '';
-    $place_value = $_POST['place'] ?? '';
-    $date_value = $_POST['date'] ?? '';
+    $valor_tipo = $_POST['type'] ?? '';
+    $valor_monitor = $_POST['monitor'] ?? '';
+    $valor_lugar = $_POST['place'] ?? '';
+    $valor_fecha = $_POST['date'] ?? '';
 
-    // --- Validaciones [cite: 124] ---
-    
-    // (Paso 4.1) Todos los campos obligatorios [cite: 125]
-    if (empty($type_value) || empty($monitor_value) || empty($place_value) || empty($date_value)) {
-        $errors[] = "Todos los campos son obligatorios.";
-    }
+    // Validamos usando el validador
+    $errores = Validador::validarForm([
+        'type' => $valor_tipo,
+        'monitor' => $valor_monitor,
+        'place' => $valor_lugar,
+        'date' => $valor_fecha
+    ], false); // false porque no requiere ID al crear ya que en la BBDD es autoincremental
 
-    // (Paso 4.2) Tipo de Actividad válida [cite: 126]
-    if (!in_array($type_value, VALID_TYPES)) {
-        $errors[] = "El tipo de actividad no es válido. Debe ser 'spinning', 'bodypump' o 'pilates'.";
-    }
+    // Si no hay errores insertamos
+    if (empty($errores)) {
+        $actividadDAO = new ActividadesDAO();
 
-    // (Paso 4.3) Fecha posterior a la actual [cite: 127]
-    // Usamos strtotime (visto en UT1 [cite: 431] para time()) para convertir la fecha a timestamp
-    $date_timestamp = strtotime($date_value);
-    $now_timestamp = time();
-
-    if ($date_timestamp === false || $date_timestamp < $now_timestamp) {
-        $errors[] = "La fecha y hora deben ser posteriores a la fecha y hora actual.";
-    }
-    
-    // --- Fin Validaciones ---
-
-    // Si no hay errores, procedemos a insertar 
-    if (empty($errors)) {
-        $activityDAO = new ActivityDAO();
-        
-        $activityDTO = [
-            'type' => $type_value,
-            'monitor' => $monitor_value,
-            'place' => $place_value,
-            'date' => $date_value
+        $actividadDTO = [
+            'type' => $valor_tipo,
+            'monitor' => $valor_monitor,
+            'place' => $valor_lugar,
+            'date' => $valor_fecha
         ];
-        
-        $activityDAO->insert($activityDTO);
-        
+
+        $actividadDAO->insert($actividadDTO);
+
         // Redirigimos al listado 
-        header("Location: listado.php");
+        header("Location: " . $dirHref . "/app/listado.php");
         exit;
     }
-    // Si hay errores[cite: 130], se mostrarán en la vista
+    // Si hay errores se mostrarán en la vista
 }
-// --- FIN LÓGICA PASO 4 ---
 
 // --- VISTA ---
 // Incluimos la cabecera
-require_once __DIR__ . '/../templates/header.php';
+require_once $dir . '/../templates/header.php';
 ?>
 
 <h2>Crear Nueva Actividad</h2>
 <hr>
 
 <?php
-// (Paso 4.4) Si hay errores, los mostramos en pantalla [cite: 130]
-if (!empty($errors)) {
+// Si hay errores, los mostramos en pantalla
+if (!empty($errores)) {
     echo '<div class="alert alert-danger" role="alert">';
-    foreach ($errors as $error) {
+    foreach ($errores as $error) {
         echo "<p class='mb-0'>$error</p>";
     }
     echo '</div>';
@@ -95,15 +82,15 @@ if (!empty($errors)) {
 
 <?php
 // Variables para el formulario reutilizable
-$form_action = 'crearActividad.php';
+$form_action = $dirHref . '/app/crearActividad.php';
 $button_text = 'Insert';
-$activity_id = null; // No hay ID en la creación
+$id_actividad = null; // No hay ID en la creación
 
-// (Paso 6) Incluimos el formulario reutilizable [cite: 165]
-require __DIR__ . '/../templates/formActividad.php';
+// Incluimos el formulario reutilizable
+require $dir . '/../templates/formulario.php';
 ?>
 
 <?php
 // Incluimos el pie de página
-require_once __DIR__ . '/../templates/footer.php';
+require_once $dir . '/../templates/footer.php';
 ?>

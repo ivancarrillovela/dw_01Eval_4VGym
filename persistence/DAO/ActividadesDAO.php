@@ -1,16 +1,16 @@
 <?php
 require_once 'GenericDAO.php';
 
-class ActivityDAO extends GenericDAO {
+class ActividadesDAO extends GenericDAO {
 
   //Se define una constante con el nombre de la tabla
-  const ACTIVITY_TABLE = 'activities';
+  const TABLA_ACTIVIDADES = 'activities';
 
   /**
    * Obtiene todas las actividades.
    */
   public function selectAll() {
-    $query = "SELECT * FROM " . ActivityDAO::ACTIVITY_TABLE . " ORDER BY date ASC";
+    $query = "SELECT * FROM " . ActividadesDAO::TABLA_ACTIVIDADES . " ORDER BY date ASC";
     $result = mysqli_query($this->conn, $query);
     $activities = array();
     
@@ -29,10 +29,10 @@ class ActivityDAO extends GenericDAO {
   }
 
   /**
-   * (Paso 7) Selecciona actividades filtrando por fecha (DATE)
+   * Selecciona actividades filtrando por fecha (DATE)
    */
   public function selectByDate($date) {
-    $query = "SELECT * FROM " . ActivityDAO::ACTIVITY_TABLE . " WHERE DATE(date) = ? ORDER BY date ASC";
+    $query = "SELECT * FROM " . ActividadesDAO::TABLA_ACTIVIDADES . " WHERE DATE(date) = ? ORDER BY date ASC";
     $stmt = mysqli_prepare($this->conn, $query);
     mysqli_stmt_bind_param($stmt, 's', $date);
     mysqli_stmt_execute($stmt);
@@ -54,10 +54,10 @@ class ActivityDAO extends GenericDAO {
   }
 
   /**
-   * (Pasos 5 y 6) Selecciona una actividad por su ID.
+   * Selecciona una actividad por su ID.
    */
   public function selectById($id) {
-    $query = "SELECT * FROM " . ActivityDAO::ACTIVITY_TABLE . " WHERE id = ?";
+    $query = "SELECT * FROM " . ActividadesDAO::TABLA_ACTIVIDADES . " WHERE id = ?";
     $stmt = mysqli_prepare($this->conn, $query);
     mysqli_stmt_bind_param($stmt, 'i', $id);
     mysqli_stmt_execute($stmt);
@@ -78,11 +78,11 @@ class ActivityDAO extends GenericDAO {
   }
 
   /**
-   * (Paso 4) Inserta una nueva actividad.
+   * Inserta una nueva actividad.
    * $dto es un array ['type' => ..., 'monitor' => ..., 'place' => ..., 'date' => ...]
    */
   public function insert($dto) {
-    $query = "INSERT INTO " . ActivityDAO::ACTIVITY_TABLE .
+    $query = "INSERT INTO " . ActividadesDAO::TABLA_ACTIVIDADES .
       " (type, monitor, place, date) VALUES(?,?,?,?)";
     $stmt = mysqli_prepare($this->conn, $query);
     
@@ -97,11 +97,11 @@ class ActivityDAO extends GenericDAO {
   }
 
   /**
-   * (Paso 6) Actualiza una actividad existente.
+   * Actualiza una actividad existente.
    * $dto es un array ['id' => ..., 'type' => ..., 'monitor' => ..., 'place' => ..., 'date' => ...]
    */
   public function update($dto) {
-    $query = "UPDATE " . ActivityDAO::ACTIVITY_TABLE .
+    $query = "UPDATE " . ActividadesDAO::TABLA_ACTIVIDADES .
       " SET type=?, monitor=?, place=?, date=?"
       . " WHERE id=?";
     $stmt = mysqli_prepare($this->conn, $query);
@@ -118,10 +118,10 @@ class ActivityDAO extends GenericDAO {
   }
 
   /**
-   * (Paso 5) Borra una actividad por su ID.
+   * Borra una actividad por su ID.
    */
   public function delete($id) {
-    $query = "DELETE FROM " . ActivityDAO::ACTIVITY_TABLE . " WHERE id = ?";
+    $query = "DELETE FROM " . ActividadesDAO::TABLA_ACTIVIDADES . " WHERE id = ?";
     $stmt = mysqli_prepare($this->conn, $query);
     mysqli_stmt_bind_param($stmt, 'i', $id);
     return $stmt->execute();
